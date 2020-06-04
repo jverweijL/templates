@@ -1,0 +1,79 @@
+<#assign VocabularyService = serviceLocator.findService("com.liferay.asset.kernel.service.AssetVocabularyLocalService") />
+<#assign Vocabulary = VocabularyService.getAssetVocabulary(58883) />
+<#assign AssetCategoryLocalService = serviceLocator.findService("com.liferay.asset.kernel.service.AssetCategoryLocalService") />
+<#assign assetEntryQuery = objectUtil("com.liferay.asset.kernel.service.persistence.AssetEntryQuery") />
+<#assign AssetEntryService = serviceLocator.findService("com.liferay.asset.kernel.service.AssetEntryService") />
+<#assign itemCounter = 0>
+
+<ul class="nav nav-underline" role="tablist">
+    <#list Vocabulary.getCategories() as rootcat>
+        <#if rootcat.isRootCategory()>
+            <#assign itemCounter = itemCounter + 1>
+            <li class="nav-item">
+                <a
+                    aria-controls="navUnderlineFields"
+                    aria-expanded="true"
+                    class="${(itemCounter == 1)?then('active', '')} nav-link"
+                    data-toggle="tab"
+                    href="#${rootcat.getName()}Fields"
+                    id="${rootcat.getName()}Tab"
+                    role="tab"
+                    >${rootcat.getName()}</a
+                >
+            </li>
+        </#if>
+    </#list>
+</ul>
+
+<div class="tab-content container">
+<#assign itemCounter = 0>
+<#list Vocabulary.getCategories() as rootcat>
+    <#if rootcat.isRootCategory()>
+        <#assign itemCounter = itemCounter + 1>
+        <div
+			aria-labelledby="navUnderlineFieldsTab"
+			class="${(itemCounter == 1)?then('active show', '')} fade tab-pane"
+			id="${rootcat.getName()}Fields"
+			role="tabpanel"
+		>
+            
+            <div class="col-sm bookmarks" aria-labelledby="${rootcat.getName()}Tab" id="${rootcat.getName()}Fields" role="tabpanel">
+                <div class="container">
+  <div class="row">
+            <#list AssetCategoryLocalService.getChildCategories(rootcat.getCategoryId()) as category>
+            <div class="col-md-3 col-sm-6">
+                <h3>${category.getName()}</h3>
+                <#assign categories = [category.getCategoryId()] />
+                <#assign assignedCategoryIds=assetEntryQuery.setAnyCategoryIds(categories)/>
+                <#assign entries = AssetEntryService.getEntries(assetEntryQuery) />
+                <#list entries as curEntry>
+                    
+                    <#assign renderer = curEntry.getAssetRenderer() />
+                    <#assign journalArticle = renderer.getArticle() />
+
+                    <#-- MODIFY THE ddmTemplateKey FOR YOUR SYSTEM -->
+                    <@liferay_journal["journal-article"]
+                        articleId=journalArticle.getArticleId()
+                        ddmTemplateKey="58877"
+                        groupId=journalArticle.getGroupId() />
+                
+                </#list>
+                </div>
+            </#list>
+            </div>
+            </div>
+            </div>
+		</div>
+    </#if>
+</#list>
+</div>
+
+<style>
+.bookmarks h3:xfirst-child {
+    margin-top: 0px;
+}
+
+.bookmarks h3 {
+    margin-top: 30px;
+}
+</style>

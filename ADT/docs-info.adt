@@ -1,0 +1,95 @@
+<#if entries?has_content>
+	<#list entries as curEntry>
+
+<h3>Entries:</h3> ${curEntry} <br><hr>
+
+<b>entryId:</b> ${curEntry.entryId}<br>
+<b>groupId:</b> ${curEntry.groupId}<br>
+<b>companyId:</b> ${curEntry.companyId}<br>
+<b>userId:</b> ${curEntry.userId}<br>
+<b>userName:</b> ${curEntry.userName}<br>
+<b>classNameId:</b> ${curEntry.classNameId}<br>
+<b>classPK:</b> ${curEntry.classPK}<br>
+<b>classUuid:</b> ${curEntry.classUuid}<br>
+<b>classTypeId:</b> ${curEntry.classTypeId}<br>
+<b>mimeType:</b> ${curEntry.mimeType}<br>
+<b>title:</b> ${curEntry.title}<br>
+<b>description:</b> ${curEntry.description}<br>
+<b>summary:</b> ${curEntry.summary}<br>
+<b>url:</b> ${curEntry.url}<br>
+<b>layoutUuid:</b> ${curEntry.layoutUuid}<br>
+<b>height:</b> ${curEntry.height}<br>
+<b>width:</b> ${curEntry.width}<br>
+<b>priority:</b> ${curEntry.priority}<br>
+<b>viewCount:</b> ${curEntry.viewCount}<br>
+
+<hr>
+
+<!-- PROPRIEDADES DE DATA PRECISAM DE PARAMETROS ESPECIFICOS PARA O FREMARKER ENTENDER-->
+<b>createDate</b>: ${curEntry.createDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+<b>createDate</b>: ${curEntry.createDate?date} <br>
+<b>createDate</b>: ${curEntry.createDate?time} <br>
+<b>createDate</b>: ${curEntry.createDate?datetime} <br>
+<hr>
+<b>modifiedDate</b>: ${curEntry.modifiedDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+<b>modifiedDate</b>: ${curEntry.modifiedDate?date} <br>
+<b>modifiedDate</b>: ${curEntry.modifiedDate?time} <br>
+<b>modifiedDate</b>: ${curEntry.modifiedDate?datetime} <br>
+<hr>
+<b>publishDate</b>: ${curEntry.publishDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+<b>publishDate</b>: ${curEntry.publishDate?date} <br>
+<b>publishDate</b>: ${curEntry.publishDate?time} <br>
+<b>publishDate</b>: ${curEntry.publishDate?datetime} <br>
+<hr>
+<#if curEntry.expirationDate??>
+    <hr>
+    <b>expirationDate</b>: ${curEntry.expirationDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+    <b>expirationDate</b>: ${curEntry.expirationDate?date} <br>
+    <b>expirationDate</b>: ${curEntry.expirationDate?time} <br>
+    <b>expirationDate</b>: ${curEntry.expirationDate?datetime} <br>
+</#if>
+<#if curEntry.startDate??>
+    <hr>
+    <b>startDate</b>: ${curEntry.startDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+    <b>startDate</b>: ${curEntry.startDate?date} <br>
+    <b>startDate</b>: ${curEntry.startDate?time} <br>
+    <b>startDate</b>: ${curEntry.startDate?datetime} <br>
+</#if>
+<#if curEntry.endDate??>
+    <hr>
+    <b>endDate</b>: ${curEntry.endDate?string('dd/MM/yyyy HH:mm:ss')} <br>
+    <b>endDate</b>: ${curEntry.endDate?date} <br>
+    <b>endDate</b>: ${curEntry.endDate?time} <br>
+    <b>endDate</b>: ${curEntry.endDate?datetime} <br>
+</#if>
+
+<!-- Veja mais: https://freemarker.apache.org/docs/ref_builtins_date.html -->
+
+<hr>
+
+<!-- PROPRIEDADES BOLEANAS PRECISAM DE PARAMETROS ESPCIFICOS PARA O FREMARKER ENTENDER-->
+<b>listable</b>: ${curEntry.listable?c} <br>
+<b>listable</b>: ${curEntry.listable?string("yes", "no")} <br> <!-- deprecated use then -->
+<b>listable</b>: ${curEntry.listable?then("yes", "no")} <br>
+<hr>
+<b>visible</b>: ${curEntry.visible?c} <br>
+<b>visible</b>: ${curEntry.visible?string("yes", "no")} <br> <!-- deprecated use then -->
+<b>visible</b>: ${curEntry.visible?then("yes", "no")} <br>
+
+<!-- Veja mais: https://freemarker.apache.org/docs/ref_builtins_boolean.html -->
+
+<hr>
+
+<!-- DOCUMENTO TIPO IMAGEM -->
+<#assign imageURL = "/c/document_library/get_file?uuid=" + curEntry.getClassUuid() + "&groupId=" + curEntry.getGroupId()/>
+<img src="${imageURL}"/>
+
+<#function getImageURL entry>
+    <#assign imageURL = "/c/document_library/get_file?uuid=" + entry.getClassUuid() + "&groupId=" + entry.getGroupId()/>
+    <#return imageURL>
+</#function>
+
+<img src="${getImageURL(curEntry)}"/>
+
+	</#list>
+</#if>

@@ -1,0 +1,12 @@
+<#if entries?has_content>
+<div class="container">
+    <div class="row no-gutters">
+	<#list entries as curEntry>
+        <#assign imageURL = "/c/document_library/get_file?uuid=" + curEntry.getClassUuid() + "&groupId=" + curEntry.getGroupId()/>
+        <div class="col-4">
+            <img src="${imageURL}" class="img-fluid"/>
+        </div>
+	</#list>
+    </div>
+</div>	
+</#if>
