@@ -1,0 +1,10 @@
+<#if entries?has_content>
+	<#list entries as curEntry>
+		<#assign renderer = curEntry.getAssetRenderer() />
+        <#assign journalArticle = renderer.getArticle() />
+        <@liferay_journal["journal-article"]
+            articleId=journalArticle.getArticleId()
+            ddmTemplateKey="39595"
+            groupId=journalArticle.getGroupId() />
+	</#list>
+</#if>

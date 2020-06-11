@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<workflow-definition
+	xmlns="urn:liferay.com:liferay-workflow_7.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:liferay.com:liferay-workflow_7.1.0 http://www.liferay.com/dtd/liferay-workflow-definition_7_1_0.xsd">
+	<version>1</version>
+    <!-- source: https://gist.github.com/gustavnovotny -->
+	<condition>
+		<name>Needs Correction Check</name>
+		<metadata>
+			<![CDATA[{"xy":[302.0069580078125,56.986114501953125]}]]>
+		</metadata>
+		<script>
+			<![CDATA[
+				import com.liferay.asset.kernel.model.AssetCategory;
+				import com.liferay.asset.kernel.model.AssetEntry;
+				import com.liferay.asset.kernel.model.AssetRenderer;
+				import com.liferay.asset.kernel.model.AssetRendererFactory;
+				import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+				import com.liferay.portal.kernel.util.GetterUtil;
+				import com.liferay.portal.kernel.workflow.WorkflowConstants;
+				import com.liferay.portal.kernel.workflow.WorkflowHandler;
+				import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
+				import java.util.List;
+				String className = (String)workflowContext.get(WorkflowConstants.CONTEXT_ENTRY_CLASS_NAME);
+				WorkflowHandler workflowHandler = WorkflowHandlerRegistryUtil.getWorkflowHandler(className);
+				AssetRendererFactory assetRendererFactory = workflowHandler.getAssetRendererFactory();
+				long classPK = GetterUtil.getLong((String)workflowContext.get(WorkflowConstants.CONTEXT_ENTRY_CLASS_PK));
+				AssetRenderer assetRenderer = workflowHandler.getAssetRenderer(classPK);
+				AssetEntry assetEntry = assetRendererFactory.getAssetEntry(assetRendererFactory.getClassName(), assetRenderer.getClassPK());
+				List<AssetCategory> assetCategories = assetEntry.getCategories();
+				returnValue = "Direct Approval";
+				for (AssetCategory assetCategory : assetCategories) {
+					String categoryName = assetCategory.getName();
+					if (categoryName.equals("Language Correction")) {
+						returnValue = "Language Review";
+						return;
+					}
+				}
+			]]>
+		</script>
+		<script-language>groovy</script-language>
+		<transitions>
+			<transition>
+				<name>Direct Approval</name>
+				<target>EndNode</target>
+				<default>true</default>
+			</transition>
+			<transition>
+				<name>Language Review</name>
+				<target>LanguageReview</target>
+				<default>false</default>
+			</transition>
+		</transitions>
+	</condition>
+	<state>
+		<name>Created</name>
+		<metadata>
+			<![CDATA[{"xy":[100,40]}]]>
+		</metadata>
+		<initial>true</initial>
+		<transitions>
+			<transition>
+				<name>Determine Branch</name>
+				<target>Needs Correction Check</target>
+				<default>true</default>
+			</transition>
+		</transitions>
+	</state>
+	<state>
+		<name>EndNode</name>
+		<metadata>
+			<![CDATA[{"terminal":true,"xy":[688.0382080078125,416.9618225097656]}]]>
+		</metadata>
+		<actions>
+			<action>
+				<name>Approve</name>
+				<description>Approve</description>
+				<script>
+					<![CDATA[com.liferay.portal.kernel.workflow.WorkflowStatusManagerUtil.updateStatus(com.liferay.portal.kernel.workflow.WorkflowConstants.getLabelStatus("approved"), workflowContext);]]>
+				</script>
+				<script-language>groovy</script-language>
+				<execution-type>onEntry</execution-type>
+			</action>
+		</actions>
+	</state>
+	<task>
+		<name>LanguageReview</name>
+		<metadata>
+			<![CDATA[{"xy":[231.986083984375,355.9236145019531]}]]>
+		</metadata>
+		<actions>
+			<notification>
+				<name>Review Notification</name>
+				<description>
+					<![CDATA[]]>
+				</description>
+				<template>
+					<![CDATA[New content is waiting for your language correction.]]>
+				</template>
+				<template-language>freemarker</template-language>
+				<notification-type>user-notification</notification-type>
+				<recipients receptionType="to">
+					<assignees/>
+				</recipients>
+				<execution-type>onAssignment</execution-type>
+			</notification>
+		</actions>
+		<assignments>
+			<roles>
+				<role>
+					<role-type>regular</role-type>
+					<name>Language Corrector</name>
+					<auto-create>true</auto-create>
+				</role>
+			</roles>
+		</assignments>
+		<transitions>
+			<transition>
+				<name>Review Done</name>
+				<target>EndNode</target>
+				<default>true</default>
+			</transition>
+		</transitions>
+	</task>
+</workflow-definition>
